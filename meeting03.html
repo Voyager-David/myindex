@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>智能出勤管理系统 v2.0</title>
+    <style>
+        :root {
+            --normal-color: #27ae60;
+            --travel-color: #f39c12;
+            --bg-color: #f5f6fa;
+            --header-color: #2c3e50;
+            --separator-color: #dcdde1;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            margin: 2rem;
+            background: var(--bg-color);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            padding: 2rem;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .table-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+            border-left: 2px solid var(--separator-color);
+        }
+
+        .table-group {
+            padding-right: 1rem;
+            position: relative;
+        }
+
+        .table-group:first-child {
+            padding-left: 1rem;
+            border-right: 2px solid var(--separator-color);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+
+        th {
+            background: var(--header-color);
+            color: white;
+            padding: 1.2rem;
+            font-weight: 500;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid #ecf0f1;
+            text-align: center;
+        }
+
+        .status-toggle {
+            width: 80px;
+            height: 34px;
+            border-radius: 17px;
+            border: none;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .status-toggle.normal {
+            background: var(--normal-color);
+            padding-right: 24px;
+        }
+
+        .status-toggle.travel {
+            background: var(--travel-color);
+            padding-left: 24px;
+        }
+
+        .copy-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-left: 0.5rem;
+        }
+
+        .copy-btn:hover {
+            background: #2980b9;
+        }
+
+        .toolbar {
+            margin-bottom: 1.5rem;
+            display: flex;
+            gap: 1rem;
+        }
+
+        [contenteditable="true"]:focus {
+            outline: 2px solid #3498db;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="stats">
+            <div class="stat-card">
+                <div>
+                    <div>正常上班</div>
+                    <div class="stat-value" id="normal-count">0</div>
+                </div>
+                <button class="copy-btn" data-type="normal">复制</button>
+            </div>
+            <div class="stat-card">
+                <div>
+                    <div>出差</div>
+                    <div class="stat-value" id="travel-count">0</div>
+                </div>
+                <button class="copy-btn" data-type="travel">复制</button>
+            </div>
+            <div class="stat-card">
+                <div>
+                    <div>应到人数</div>
+                    <div class="stat-value">30</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div>
+                    <div>实到人数</div>
+                    <div class="stat-value" id="actual-count">0</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="toolbar">
+             <button class="copy-btn" id="copy-all-normal">复制所有正常人员</button>
+            <button class="copy-btn" id="copy-all-travel">复制所有出差人员</button>
+        </div>
+
+        <div class="table-container">
+            <div class="table-group">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>姓名</th>
+                            <th>工号</th>
+                            <th>状态</th>
+                        </tr>
+                    </thead>
+                    <tbody id="staff-group1"></tbody>
+                </table>
+            </div>
+
+            <div class="table-group">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>姓名</th>
+                            <th>工号</th>
+                            <th>状态</th>
+                        </tr>
+                    </thead>
+                    <tbody id="staff-group2"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 版本v2.0更新说明：
+        // 1. 六列分栏布局 2. 独立员工数据集 3. 动态人数支持
+        
+        const STORAGE_KEY = 'attendanceData_v2';
+        
+        // 员工数据集（示例数据）
+        const initialStaff = [
+            { name: "张三", id: "001", status: "normal" },
+            { name: "李四", id: "002", status: "normal" },
+            { name: "王五", id: "003", status: "normal" },
+            // 在此处添加更多员工...
+        ];
+
+        // 初始化员工数据
+        let employees = JSON.parse(localStorage.getItem(STORAGE_KEY)) || initialStaff;
+
+        function renderList() {
+            const midIndex = Math.ceil(employees.length / 2);
+            
+            // 渲染左侧表格
+            document.getElementById('staff-group1').innerHTML = employees.slice(0, midIndex).map((emp, index) => `
+                <tr>
+                    <td contenteditable="true">${emp.name}</td>
+                    <td contenteditable="true">${emp.id}</td>
+                    <td>
+                        <button class="status-toggle ${emp.status}" 
+                                data-index="${index}"
+                                onclick="toggleStatus(${index})">
+                            ${emp.status === 'normal' ? '在岗' : '出差'}
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+
+            // 渲染右侧表格
+            document.getElementById('staff-group2').innerHTML = employees.slice(midIndex).map((emp, index) => `
+                <tr>
+                    <td contenteditable="true">${emp.name}</td>
+                    <td contenteditable="true">${emp.id}</td>
+                    <td>
+                        <button class="status-toggle ${emp.status}" 
+                                data-index="${midIndex + index}"
+                                onclick="toggleStatus(${midIndex + index})">
+                            ${emp.status === 'normal' ? '在岗' : '出差'}
+                        </button>
+                    </td>
+                </tr>
+           `).join('');
+
+            // 绑定编辑事件
+            document.querySelectorAll('[contenteditable="true"]').forEach((el, flatIndex) => {
+                el.addEventListener('input', debounce(() => {
+                    const rowIndex = Math.floor(flatIndex / 3);
+                    const groupIndex = flatIndex % 6 < 3 ? 0 : 1;
+                    const actualIndex = groupIndex === 0 ? rowIndex : midIndex + rowIndex;
+                    const field = flatIndex % 3 === 0 ? 'name' : 'id';
+                    
+                    if(employees[actualIndex]) {
+                        employees[actualIndex][field] = el.textContent;
+                        localStorage.setItem(STORAGE_KEY, JSON.stringify(employees));
+                        updateStats();
+                    }
+                }, 300));
+            });
+
+            updateStats();
+        }
+
+        // 更新统计数据
+        function updateStats() {
+            const total = employees.length;
+            const normalCount = employees.filter(e => e.status === 'normal').length;
+            
+            document.getElementById('normal-count').textContent = normalCount;
+            document.getElementById('travel-count').textContent = total - normalCount;
+            document.getElementById('actual-count').textContent = normalCount;
+            document.querySelector('.stat-value:nth-child(3)').textContent = total;
+        }
+
+        // 其他函数保持不变（toggleStatus, debounce, copyStaff等）
+         // 状态切换
+        window.toggleStatus = function(index) {
+            employees[index].status = employees[index].status === 'normal' ? 'travel' : 'normal';
+            saveToStorage();
+            renderList();
+        }
+
+        // 防抖函数
+        function debounce(fn, delay) {
+            let timer;
+            return function(...args) {
+                clearTimeout(timer);
+                timer = setTimeout(() => fn.apply(this, args), delay);
+            }
+        }
+
+        // 复制功能
+        async function copyStaff(type) {
+            const list = employees.filter(e => e.status === type)
+                .map(e => `${e.name}（${e.id}）`)
+                .join('\n');
+            
+            try {
+                await navigator.clipboard.writeText(list);
+                alert(`已复制${type === 'normal' ? '正常' : '出差'}人员名单`);
+            } catch (err) {
+                console.error('复制失败:', err);
+            }
+        }
+
+        // 事件绑定
+        document.querySelectorAll('[data-type]').forEach(btn => {
+            btn.addEventListener('click', () => copyStaff(btn.dataset.type));
+        });
+
+        document.getElementById('copy-all-normal').addEventListener('click', () => copyStaff('normal'));
+        document.getElementById('copy-all-travel').addEventListener('click', () => copyStaff('travel'));
+        
+        // 初始化
+        renderList();
+    </script>
+</body>
+</html>
