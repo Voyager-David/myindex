@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能文档导航系统</title>
+    <style>
+        :root {
+            --primary-bg: #ffffff;
+            --secondary-bg: #f0f2f5;
+            --text-primary: #2c3e50;
+            --text-secondary: #7f8c8d;
+            --accent-color: #3498db;
+            --sidebar-bg: #2c3e50;
+        }
+
+        [data-theme="dark"] {
+            --primary-bg: #1a1a1a;
+            --secondary-bg: #2d2d2d;
+            --text-primary: #ecf0f1;
+            --text-secondary: #bdc3c7;
+            --sidebar-bg: #121212;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body {
+            background-color: var(--secondary-bg);
+            color: var(--text-primary);
+        }
+
+        /* 增强侧边栏 */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100vh;
+            width: 280px;
+            background: var(--sidebar-bg);
+            padding: 20px;
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar.collapsed {
+            transform: translateX(-100%);
+        }
+
+        /* 搜索框样式 */
+        .search-box {
+            position: relative;
+            margin-bottom: 30px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 40px 12px 15px;
+            border-radius: 25px;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            fill: rgba(255, 255, 255, 0.6);
+        }
+
+        /* 可折叠分类 */
+        .nav-category {
+            margin-bottom: 20px;
+        }
+
+        .category-title {
+            color: rgba(255, 255, 255, 0.8);
+            padding: 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .category-title:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .collapse-icon {
+            width: 16px;
+            height: 16px;
+            transition: transform 0.3s;
+        }
+
+        .category-content {
+            max-height: 500px;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .category-content.collapsed {
+            max-height: 0;
+        }
+
+        /* 响应式布局 */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0 !important;
+            }
+            .toggle-btn {
+                left: 20px !important;
+            }
+        }
+
+        /* 夜间模式切换 */
+        .theme-switcher {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--accent-color);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        /* 新增功能：文档标签 */
+        .doc-tags {
+            margin: 10px 0;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .doc-tag {
+            background: rgba(52, 152, 219, 0.1);
+            color: var(--accent-color);
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 新增主题切换按钮 -->
+    <div class="theme-switcher" id="themeSwitcher">
+        <svg class="icon" viewBox="0 0 24 24" width="20" height="20">
+            <path d="M12 18c-3.3 0-6-2.7-6-6s2.7-6 6-6 6 2.7 6 6-2.7 6-6 6zm0-2c2.2 0 4-1.8 4-4s-1.8-4-4-4-4 1.8-4 4 1.8 4 4 4zM12 3V2m0 20v-1m9-9h1M2 12h1m15.1-6.9l.7-.7M5.2 18.8l.7-.7M18.8 5.2l-.7-.7M5.2 5.2l-.7-.7"/>
+        </svg>
+    </div>
+
+    <button class="toggle-btn" id="toggleBtn">☰</button>
+
+    <aside class="sidebar" id="sidebar">
+        <!-- 新增搜索功能 -->
+        <div class="search-box">
+            <input type="text" class="search-input" placeholder="搜索文档..." id="searchInput">
+            <svg class="search-icon" viewBox="0 0 24 24">
+                <path d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 0 0 1.48-5.34c-.47-2.78-2.79-5-5.59-5.34a6.505 6.505 0 0 0-7.27 7.27c.34 2.8 2.56 5.12 5.34 5.59a6.5 6.5 0 0 0 5.34-1.48l.27.28v.79l4.25 4.25c.41.41 1.08.41 1.49 0 .41-.41.41-1.08 0-1.49L15.5 14zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+            </svg>
+        </div>
+
+        <div class="nav-content">
+            <div class="nav-category">
+                <div class="category-title" data-category="tech">
+                    技术文档
+                    <svg class="collapse-icon" viewBox="0 0 24 24">
+                        <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
+                    </svg>
+                </div>
+                <div class="category-content" data-category="tech">
+                    <ul class="nav-links">
+                        <li class="nav-link"><a href="#">开发指南</a></li>
+                        <li class="nav-link"><a href="#">API参考</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content" id="mainContent">
+        <!-- 新增标签系统 -->
+        <div class="doc-tags" id="tagFilter"></div>
+        
+        <div class="doc-grid">
+            <div class="doc-card" data-title="用户手册" data-tags="入门,使用指南" data-category="tech">
+                <h3 class="doc-title">用户手册</h3>
+                <div class="doc-tags">
+                    <span class="doc-tag">入门</span>
+                    <span class="doc-tag">使用指南</span>
+                </div>
+                <p class="doc-description">详细的产品使用说明和操作指南</p>
+                <a href="#" class="doc-link">查看文档</a>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // 侧边栏控制
+        const sidebar = document.getElementById('sidebar');
+        const toggleBtn = document.getElementById('toggleBtn');
+        
+        // 分类折叠功能
+        document.querySelectorAll('.category-title').forEach(title => {
+            title.addEventListener('click', () => {
+                const content = title.nextElementSibling;
+                const isCollapsed = content.classList.contains('collapsed');
+                content.classList.toggle('collapsed');
+                title.querySelector('svg').style.transform = isCollapsed 
+                    ? 'rotate(0deg)' 
+                    : 'rotate(180deg)';
+            });
+        });
+
+        // 实时搜索功能
+        const searchInput = document.getElementById('searchInput');
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            document.querySelectorAll('.doc-card').forEach(card => {
+                const title = card.dataset.title.toLowerCase();
+                const desc = card.querySelector('.doc-description').textContent.toLowerCase();
+                card.style.display = (title.includes(searchTerm) || desc.includes(searchTerm)) 
+                    ? 'block' 
+                    : 'none';
+            });
+        });
+
+        // 主题切换功能
+        const themeSwitcher = document.getElementById('themeSwitcher');
+        themeSwitcher.addEventListener('click', () => {
+            document.body.classList.toggle('dark');
+            document.body.setAttribute('data-theme', 
+                document.body.classList.contains('dark') ? 'dark' : 'light');
+            localStorage.setItem('theme', document.body.getAttribute('data-theme'));
+        });
+
+        // 响应式处理
+        window.addEventListener('resize', () => {
+            if (window.innerWidth <= 768) {
+                sidebar.classList.add('collapsed');
+            }
+        });
+
+        // 初始化主题
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.body.setAttribute('data-theme', savedTheme);
+        if (savedTheme === 'dark') document.body.classList.add('dark');
+
+        // 标签过滤系统
+        const tags = [...new Set(
+            [...document.querySelectorAll('.doc-tag')].map(tag => tag.textContent)
+        )];
+        const tagFilter = document.getElementById('tagFilter');
+        tags.forEach(tag => {
+            const button = document.createElement('button');
+            button.className = 'doc-tag';
+            button.textContent = tag;
+            button.onclick = () => filterByTag(tag);
+            tagFilter.appendChild(button);
+        });
+
+        function filterByTag(selectedTag) {
+            document.querySelectorAll('.doc-card').forEach(card => {
+                const cardTags = card.dataset.tags.split(',').map(t => t.trim());
+                card.style.display = cardTags.includes(selectedTag) ? 'block' : 'none';
+            });
+        }
+    </script>
+</body>
+</html>

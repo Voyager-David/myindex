@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>专业文档导航系统</title>
+    <style>
+        /* 在原有样式基础上新增卡片样式 */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+        }
+
+        .card::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: #3498db;
+            transition: all 0.3s ease;
+        }
+
+        .card[data-category="project"]::after { background: #e74c3c; }
+        .card[data-category="analytics"]::after { background: #2ecc71; }
+        .card[data-category="meeting"]::after { background: #f1c40f; }
+
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            color: #2c3e50;
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .card-description {
+            color: #7f8c8d;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            font-size: 0.95em;
+        }
+
+        .card-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #3498db;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+
+        .card-link:hover {
+            color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <!-- 侧边栏结构保持不变 -->
+
+    <main class="main-content" id="mainContent">
+        <!-- 项目文档 -->
+        <section id="projects" class="category-section">
+            <h2 class="section-title">项目文档</h2>
+            <div class="card-grid">
+                <div class="card" data-category="project" id="project-1">
+                    <svg class="card-icon" viewBox="0 0 24 24">
+                        <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6z"/>
+                    </svg>
+                    <h3 class="card-title">项目启动文档</h3>
+                    <p class="card-description">包含项目章程、干系人分析和初始风险评估</p>
+                    <a href="/projects/init" class="card-link">查看文档 →</a>
+                </div>
+
+                <div class="card" data-category="project" id="project-2">
+                    <!-- 类似结构... -->
+                </div>
+                <!-- 添加更多项目卡片 -->
+            </div>
+        </section>
+
+        <!-- 分析报告 -->
+        <section id="analytics" class="category-section">
+            <h2 class="section-title">分析报告</h2>
+            <div class="card-grid">
+                <div class="card" data-category="analytics" id="analytics-1">
+                    <svg class="card-icon" viewBox="0 0 24 24">
+                        <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                    </svg>
+                    <h3 class="card-title">用户行为分析</h3>
+                    <p class="card-description">最近30天用户活跃度与功能使用统计</p>
+                    <a href="/analytics/behavior" class="card-link">查看报告 →</a>
+                </div>
+                <!-- 添加更多分析卡片 -->
+            </div>
+        </section>
+
+        <!-- 早会记录 -->
+        <section id="meetings" class="category-section">
+            <h2 class="section-title">早会记录</h2>
+            <div class="card-grid">
+                <div class="card" data-category="meeting" id="meeting-1">
+                    <svg class="card-icon" viewBox="0 0 24 24">
+                        <path d="M17 10H7v2h10v-2zm2-7h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/>
+                    </svg>
+                    <h3 class="card-title">技术晨会-2023Q4</h3>
+                    <p class="card-description">包含架构优化方案与代码审查要点</p>
+                    <a href="/meetings/tech-q4" class="card-link">查看记录 →</a>
+                </div>
+                <!-- 添加更多会议卡片 -->
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // 增强滚动定位功能
+        document.querySelectorAll('.sub-link a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href').substring(1);
+                const targetElement = document.getElementById(targetId);
+                
+                if (targetElement) {
+                    // 展开对应分类
+                    const category = targetElement.closest('.category-section').id;
+                    document.querySelector(`[data-target="${category}"]`).click();
+
+                    // 平滑滚动
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 100,
+                        behavior: 'smooth'
+                    });
+
+                    // 添加视觉反馈
+                    targetElement.animate([
+                        { backgroundColor: 'transparent' },
+                        { backgroundColor: '#f1f8ff' },
+                        { backgroundColor: 'transparent' }
+                    ], {
+                        duration: 1500,
+                        iterations: 1
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
