@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>邮件归档系统 v1.2</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --background: #f8f9fa;
+            --text: #333;
+            --card-bg: white;
+        }
+
+        [data-theme="dark"] {
+            --primary: #9db4c0;
+            --secondary: #5fa8d3;
+            --background: #1a1a1a;
+            --text: #e0e0e0;
+            --card-bg: #2d2d2d;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui;
+            margin: 0;
+            padding: 2rem;
+            background: linear-gradient(135deg, var(--background) 0%, #e9ecef 100%);
+            color: var(--text);
+            transition: background 0.3s, color 0.3s;
+            min-height: 100vh;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .title {
+            color: var(--primary);
+            font-size: 2.5rem;
+            letter-spacing: -0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        .version {
+            color: #95a5a6;
+            font-size: 0.9em;
+        }
+
+        .search-bar {
+            max-width: 800px;
+            margin: 0 auto 2rem;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 20px;
+            border: 2px solid var(--secondary);
+            border-radius: 30px;
+            background: var(--card-bg);
+            color: var(--text);
+            transition: all 0.3s;
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            background: var(--secondary);
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .category-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .category-title {
+            color: var(--secondary);
+            border-bottom: 2px solid #eee;
+            padding-bottom: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .document-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .document-item {
+            margin: 0.8rem 0;
+        }
+
+        .document-link {
+            color: var(--primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: color 0.3s ease;
+        }
+
+        .document-link::before {
+            content: "✉️";
+            font-size: 0.9em;
+        }
+
+        .back-home {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--secondary);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            text-decoration: none;
+            box-shadow: 0 5px 15px rgba(52,152,219,0.3);
+            transition: transform 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <button class="theme-toggle" id="themeToggle">🌓 模式</button>
+    
+    <header class="header">
+        <h1 class="title">邮件归档系统</h1>
+        <p class="version">Version 1.2 | 专业邮件导航解决方案</p>
+        <div class="search-bar">
+            <input type="text" class="search-input" id="searchInput" placeholder="搜索邮件内容或标题...">
+        </div>
+    </header>
+
+    <main class="grid" id="mailGrid">
+        <article class="category-card">
+            <h2 class="category-title">项目报告</h2>
+            <ul class="document-list">
+                <li class="document-item">
+                    <a href="reports/Q1项目进度报告.html" class="document-link">Q1项目进度报告</a>
+                </li>
+                <li class="document-item">
+                    <a href="reports/产品迭代总结.html" class="document-link">产品迭代总结</a>
+                </li>
+            </ul>
+        </article>
+
+        <article class="category-card">
+            <h2 class="category-title">客户沟通</h2>
+            <ul class="document-list">
+                <li class="document-item">
+                    <a href="clients/A公司合作备忘录.html" class="document-link">A公司合作备忘录</a>
+                </li>
+                <li class="document-item">
+                    <a href="clients/需求确认函.html" class="document-link">需求确认函</a>
+                </li>
+            </ul>
+        </article>
+
+        <article class="category-card">
+            <h2 class="category-title">内部通知</h2>
+            <ul class="document-list">
+                <li class="document-item">
+                    <a href="notices/假期安排通知.html" class="document-link">假期安排通知</a>
+                </li>
+                <li class="document-item">
+                    <a href="notices/系统升级公告.html" class="document-link">系统升级公告</a>
+                </li>
+            </ul>
+        </article>
+    </main>
+
+    <a href="#" class="back-home">返回首页</a>
+
+    <script>
+        const CONFIG = {
+            version: '1.2',
+            data: {
+                reports: [
+                    { title: "Q1项目进度报告", path: "reports/Q1项目进度报告.html", tags: ["项目", "进度"] },
+                    { title: "产品迭代总结", path: "reports/产品迭代总结.html", tags: ["产品", "总结"] }
+                ],
+                clients: [
+                    { title: "A公司合作备忘录", path: "clients/A公司合作备忘录.html", tags: ["客户", "合作"] },
+                    { title: "需求确认函", path: "clients/需求确认函.html", tags: ["需求", "确认"] }
+                ],
+                notices: [
+                    { title: "假期安排通知", path: "notices/假期安排通知.html", tags: ["通知", "假期"] },
+                    { title: "系统升级公告", path: "notices/系统升级公告.html", tags: ["系统", "升级"] }
+                ]
+            }
+        }
+
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'light'
+            document.body.setAttribute('data-theme', savedTheme)
+            
+            document.getElementById('themeToggle').addEventListener('click', () => {
+                const currentTheme = document.body.getAttribute('data-theme')
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark'
+                document.body.setAttribute('data-theme', newTheme)
+                localStorage.setItem('theme', newTheme)
+            })
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initTheme()
+            
+            const searchInput = document.getElementById('searchInput')
+            searchInput.addEventListener('input', function() {
+                const keyword = this.value.toLowerCase()
+                document.querySelectorAll('.document-item').forEach(item => {
+                    const searchText = item.textContent.toLowerCase()
+                    item.style.display = searchText.includes(keyword) ? 'block' : 'none'
+                })
+            })
+
+            console.log(`%c 邮件归档系统 v${CONFIG.version} `, 
+                'background: #3498db; color: white; padding:5px;')
+        })
+    </script>
+</body>
+</html>

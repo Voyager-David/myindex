@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <!-- Email Archive v1.0 | 2024.03.05 -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>邮件归档系统 v1.0</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --background: #f8f9fa;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui;
+            margin: 0;
+            padding: 2rem;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            min-height: 100vh;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .title {
+            color: var(--primary);
+            font-size: 2.5rem;
+            letter-spacing: -0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        .version {
+            color: #95a5a6;
+            font-size: 0.9em;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .category-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .category-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+
+        .category-title {
+            color: var(--secondary);
+            border-bottom: 2px solid #eee;
+            padding-bottom: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .document-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .document-item {
+            margin: 0.8rem 0;
+        }
+
+        .document-link {
+            color: var(--primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: color 0.3s ease;
+        }
+
+        .document-link::before {
+            content: "✉️";
+            font-size: 0.9em;
+        }
+
+        .document-link:hover {
+            color: var(--secondary);
+        }
+
+        .back-home {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--secondary);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            text-decoration: none;
+            box-shadow: 0 5px 15px rgba(52,152,219,0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .back-home:hover {
+            transform: translateY(-3px);
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1 class="title">邮件归档系统</h1>
+        <p class="version">Version 1.0 | 专业邮件导航解决方案</p>
+    </header>
+
+    <main class="grid">
+        <article class="category-card">
+            <h2 class="category-title">项目报告</h2>
+            <ul class="document-list">
+                <li class="document-item">
+                    <a href="reports/report1.html" class="document-link">Q1项目进度报告</a>
+                </li>
+                <li class="document-item">
+                    <a href="reports/report2.html" class="document-link">产品迭代总结</a>
+                </li>
+            </ul>
+        </article>
+
+        <article class="category-card">
+            <h2 class="category-title">客户沟通</h2>
+            <ul class="document-list">
+                <li class="document-item">
+                    <a href="clients/client1.html" class="document-link">A公司合作备忘录</a>
+                </li>
+                <li class="document-item">
+                    <a href="clients/client2.html" class="document-link">需求确认函</a>
+                </li>
+            </ul>
+        </article>
+
+        <article class="category-card">
+            <h2 class="category-title">内部通知</h2>
+            <ul class="document-list">
+                <li class="document-item">
+                    <a href="notices/notice1.html" class="document-link">假期安排通知</a>
+                </li>
+                <li class="document-item">
+                    <a href="notices/notice2.html" class="document-link">系统升级公告</a>
+                </li>
+            </ul>
+        </article>
+    </main>
+
+    <a href="#" class="back-home">返回首页</a>
+
+    <script>
+        // 版本控制初始化
+        const version = '1.0';
+        
+        // 动态效果增强
+        document.addEventListener('DOMContentLoaded', function() {
+            // 卡片入场动画
+            const cards = document.querySelectorAll('.category-card');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 150);
+            });
+
+            // 返回按钮统一处理
+            document.querySelectorAll('.back-home').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    window.scrollTo({
+                        top: 0,
+                        behavior: 'smooth'
+                    });
+                });
+            });
+        });
+
+        // 控制台版本显示
+        console.log(`%c 邮件归档系统 v${version} \n%c https://github.com/yourrepo `, 
+            'background: #3498db; color: white; padding:5px;',
+            'color: #2c3e50; margin-top:3px;');
+    </script>
+</body>
+</html>
